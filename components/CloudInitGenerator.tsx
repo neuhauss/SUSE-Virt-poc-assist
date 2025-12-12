@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { CloudInitConfig, MountPoint, NetworkInterface } from '../types';
-import { FileCode, Plus, Trash2, Download, Copy, Terminal, FileText, User, Save, Key, Upload, HardDrive, Network, Globe } from 'lucide-react';
+import { FileCode, Plus, Trash2, Download, Copy, Terminal, FileText, User, Save, Key, Upload, HardDrive, Network, Globe, Info, Settings } from 'lucide-react';
 
 interface Props {
   config: CloudInitConfig;
@@ -213,10 +213,13 @@ network:
             yaml += `    ${net.name}:\n`;
             yaml += `      dhcp4: ${net.dhcp}\n`;
             if (!net.dhcp && net.ip) {
-                yaml += `      addresses: [${net.ip}]\n`;
+                yaml += `      addresses:\n        - ${net.ip}\n`;
                 if (net.gateway) yaml += `      gateway4: ${net.gateway}\n`;
                 if (net.nameservers) {
-                    yaml += `      nameservers:\n        addresses: [${net.nameservers.split(',').map(n => n.trim()).join(', ')}]\n`;
+                    const nsList = net.nameservers.split(',').map(n => n.trim()).filter(n => n).join(', ');
+                    if(nsList) {
+                        yaml += `      nameservers:\n        addresses: [${nsList}]\n`;
+                    }
                 }
             }
         });
@@ -351,6 +354,7 @@ ${config.runCmds.map(c => `  - ${c}`).join('\n')}
                            value={config.user} 
                            onChange={(e) => updateConfig({...config, user: e.target.value})}
                            className="w-full px-3 py-2 border rounded-md" 
+                           placeholder="e.g. opensuse"
                          />
                        </div>
                        <div>
@@ -551,101 +555,128 @@ ${config.runCmds.map(c => `  - ${c}`).join('\n')}
                   {/* Network Tab */}
                   {activeTab === 'network' && (
                      <div className="space-y-6">
-                        <div className="bg-blue-50 p-4 rounded-md border border-blue-100 mb-4">
-                           <h4 className="font-bold text-xs text-blue-800 mb-2 uppercase flex items-center gap-2">
-                             <Network className="w-4 h-4"/> Configure Interface
+                        <div className="bg-blue-50 p-4 rounded-md border border-blue-100 mb-4 transition-all">
+                           <h4 className="font-bold text-xs text-blue-800 mb-3 uppercase flex items-center gap-2">
+                             <Network className="w-4 h-4"/> Configure Network Interface
                            </h4>
                            
-                           <div className="space-y-3">
-                              <div className="flex gap-4">
-                                  <div className="flex-1">
-                                      <label className="block text-[10px] text-gray-600 mb-1">Interface Name</label>
+                           <div className="space-y-4">
+                              <div className="grid grid-cols-2 gap-4">
+                                  <div>
+                                      <label className="block text-[10px] font-bold text-gray-600 mb-1">Interface Name</label>
                                       <input 
-                                        placeholder="eth1"
+                                        placeholder="eth0"
                                         value={newNet.name}
                                         onChange={(e) => setNewNet({...newNet, name: e.target.value})}
-                                        className="w-full px-2 py-1.5 border rounded text-sm"
+                                        className="w-full px-3 py-2 border rounded text-sm bg-white"
                                       />
                                   </div>
-                                  <div className="flex items-end pb-2">
-                                     <label className="flex items-center gap-2 cursor-pointer">
-                                         <input 
-                                            type="checkbox"
-                                            checked={newNet.dhcp}
-                                            onChange={(e) => setNewNet({...newNet, dhcp: e.target.checked})}
-                                         />
-                                         <span className="text-xs font-bold text-gray-700">Use DHCP</span>
-                                     </label>
+                                  <div className="flex items-center">
+                                      <div 
+                                        className={`flex items-center p-3 rounded-lg border w-full cursor-pointer transition-colors ${newNet.dhcp ? 'bg-green-100 border-green-300' : 'bg-white border-gray-200'}`}
+                                        onClick={() => setNewNet({...newNet, dhcp: !newNet.dhcp})}
+                                      >
+                                          <div className={`w-4 h-4 border rounded-sm flex items-center justify-center mr-2 ${newNet.dhcp ? 'bg-green-500 border-green-600' : 'bg-white border-gray-400'}`}>
+                                              {newNet.dhcp && <div className="w-2 h-2 bg-white rounded-sm" />}
+                                          </div>
+                                          <div>
+                                              <div className="text-xs font-bold text-gray-800">DHCP Enabled</div>
+                                              <div className="text-[10px] text-gray-500">Auto-assign IPv4</div>
+                                          </div>
+                                      </div>
                                   </div>
                               </div>
 
                               {!newNet.dhcp && (
-                                  <div className="grid grid-cols-1 gap-3 animate-fade-in">
-                                      <div>
-                                          <label className="block text-[10px] text-gray-600 mb-1">Static IP (CIDR)</label>
-                                          <input 
-                                            placeholder="192.168.1.100/24"
-                                            value={newNet.ip}
-                                            onChange={(e) => setNewNet({...newNet, ip: e.target.value})}
-                                            className="w-full px-2 py-1.5 border rounded text-sm"
-                                          />
+                                  <div className="bg-white p-3 rounded border border-gray-200 shadow-sm animate-fade-in">
+                                      <div className="mb-2 text-[10px] font-bold text-gray-500 uppercase flex items-center gap-1">
+                                          <Settings className="w-3 h-3" /> Static Configuration
                                       </div>
-                                      <div className="grid grid-cols-2 gap-3">
-                                        <div>
-                                            <label className="block text-[10px] text-gray-600 mb-1">Gateway</label>
-                                            <input 
-                                                placeholder="192.168.1.1"
-                                                value={newNet.gateway}
-                                                onChange={(e) => setNewNet({...newNet, gateway: e.target.value})}
-                                                className="w-full px-2 py-1.5 border rounded text-sm"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-[10px] text-gray-600 mb-1">DNS Servers</label>
-                                            <input 
-                                                placeholder="8.8.8.8, 1.1.1.1"
-                                                value={newNet.nameservers}
-                                                onChange={(e) => setNewNet({...newNet, nameservers: e.target.value})}
-                                                className="w-full px-2 py-1.5 border rounded text-sm"
-                                            />
-                                        </div>
+                                      <div className="grid grid-cols-1 gap-3">
+                                          <div>
+                                              <label className="block text-[10px] text-gray-600 mb-1">Static IP (CIDR required)</label>
+                                              <input 
+                                                placeholder="192.168.1.100/24"
+                                                value={newNet.ip}
+                                                onChange={(e) => setNewNet({...newNet, ip: e.target.value})}
+                                                className="w-full px-2 py-1.5 border rounded text-sm font-mono"
+                                              />
+                                              {!newNet.ip?.includes('/') && newNet.ip && (
+                                                <p className="text-[10px] text-red-500 mt-1 flex items-center gap-1"><Info className="w-3 h-3"/> CIDR suffix (e.g., /24) is required for Netplan.</p>
+                                              )}
+                                          </div>
+                                          <div className="grid grid-cols-2 gap-3">
+                                            <div>
+                                                <label className="block text-[10px] text-gray-600 mb-1">Gateway IPv4</label>
+                                                <input 
+                                                    placeholder="192.168.1.1"
+                                                    value={newNet.gateway}
+                                                    onChange={(e) => setNewNet({...newNet, gateway: e.target.value})}
+                                                    className="w-full px-2 py-1.5 border rounded text-sm font-mono"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-[10px] text-gray-600 mb-1">DNS Servers</label>
+                                                <input 
+                                                    placeholder="8.8.8.8, 1.1.1.1"
+                                                    value={newNet.nameservers}
+                                                    onChange={(e) => setNewNet({...newNet, nameservers: e.target.value})}
+                                                    className="w-full px-2 py-1.5 border rounded text-sm font-mono"
+                                                />
+                                            </div>
+                                          </div>
                                       </div>
                                   </div>
                               )}
                            </div>
                            
-                           <div className="mt-3 flex justify-end">
+                           <div className="mt-4 flex justify-end">
                                <button 
                                  disabled={!newNet.name || (!newNet.dhcp && !newNet.ip)}
                                  onClick={() => { handleAddItem('networkInterfaces', newNet); setNewNet({ name: '', dhcp: true, ip: '', gateway: '', nameservers: '' }); }}
-                                 className="text-xs bg-blue-500 text-white px-3 py-1.5 rounded font-bold disabled:bg-gray-300"
+                                 className="text-xs bg-blue-600 text-white px-4 py-2 rounded font-bold disabled:bg-gray-300 hover:bg-blue-700 shadow-sm flex items-center gap-2"
                                >
-                                 Add Interface
+                                 <Plus className="w-4 h-4" /> Add Interface Config
                                </button>
                            </div>
                         </div>
 
                         <div>
-                            <label className="block text-xs font-bold text-gray-700 mb-2">Network Configuration</label>
+                            <label className="block text-xs font-bold text-gray-700 mb-2">Configured Interfaces</label>
                             {config.networkInterfaces.length === 0 ? (
-                                <p className="text-xs text-gray-400 italic">No interfaces defined. System defaults apply.</p>
+                                <div className="text-center p-6 border-2 border-dashed border-gray-200 rounded-lg">
+                                    <Network className="w-8 h-8 text-gray-300 mx-auto mb-2" />
+                                    <p className="text-xs text-gray-500 italic">No custom interfaces defined.</p>
+                                    <p className="text-[10px] text-gray-400">System will use default DHCP on all ports.</p>
+                                </div>
                             ) : (
-                                <div className="space-y-2">
+                                <div className="space-y-3">
                                     {config.networkInterfaces.map((net, i) => (
-                                        <div key={i} className="bg-gray-50 p-2 rounded border border-gray-200 flex justify-between items-start">
+                                        <div key={i} className="bg-white p-3 rounded-lg border border-gray-200 shadow-sm flex justify-between items-start group hover:border-blue-300 transition-colors">
                                             <div className="text-xs">
-                                                <div className="font-bold text-blue-700 mb-1">{net.name}</div>
-                                                {net.dhcp ? (
-                                                    <span className="bg-green-100 text-green-800 px-1 rounded text-[10px]">DHCP Enabled</span>
-                                                ) : (
-                                                    <div className="space-y-0.5 text-gray-600">
-                                                        <div>IP: {net.ip}</div>
-                                                        {net.gateway && <div>GW: {net.gateway}</div>}
-                                                        {net.nameservers && <div>DNS: {net.nameservers}</div>}
+                                                <div className="flex items-center gap-2 mb-1">
+                                                    <div className="font-bold text-blue-700 text-sm">{net.name}</div>
+                                                    {net.dhcp ? (
+                                                        <span className="bg-green-100 text-green-800 px-1.5 py-0.5 rounded text-[10px] font-bold border border-green-200">DHCP</span>
+                                                    ) : (
+                                                        <span className="bg-gray-100 text-gray-800 px-1.5 py-0.5 rounded text-[10px] font-bold border border-gray-200">STATIC</span>
+                                                    )}
+                                                </div>
+                                                
+                                                {!net.dhcp && (
+                                                    <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-gray-600 mt-2 bg-gray-50 p-2 rounded">
+                                                        <div><span className="text-gray-400">IP:</span> <span className="font-mono">{net.ip}</span></div>
+                                                        {net.gateway && <div><span className="text-gray-400">GW:</span> <span className="font-mono">{net.gateway}</span></div>}
+                                                        {net.nameservers && <div className="col-span-2"><span className="text-gray-400">DNS:</span> <span className="font-mono">{net.nameservers}</span></div>}
                                                     </div>
                                                 )}
                                             </div>
-                                            <Trash2 className="w-4 h-4 cursor-pointer text-red-400" onClick={() => handleRemoveItem('networkInterfaces', i)} />
+                                            <button 
+                                                onClick={() => handleRemoveItem('networkInterfaces', i)}
+                                                className="text-gray-400 hover:text-red-500 p-1 rounded hover:bg-red-50 transition-colors"
+                                            >
+                                                <Trash2 className="w-4 h-4" />
+                                            </button>
                                         </div>
                                     ))}
                                 </div>
