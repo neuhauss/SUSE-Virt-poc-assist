@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { NetworkSpecs, ValidationStatus } from '../types';
-import { Network, Router, Globe, AlertTriangle, CheckCircle2, ShieldCheck, Eye, EyeOff, Server, HardDrive, Lock, RefreshCw, XCircle, ExternalLink } from 'lucide-react';
+import { Network, Router, Globe, AlertTriangle, CheckCircle2, ShieldCheck, Eye, EyeOff, Server, HardDrive, Lock, RefreshCw, XCircle, ExternalLink, Trash2, Plus } from 'lucide-react';
 
 interface Props {
   specs: NetworkSpecs;
@@ -54,6 +54,21 @@ export const NetworkValidation: React.FC<Props> = ({ specs, updateSpecs, onValid
   const handleNodeUpdate = (index: number, field: 'name' | 'ip', value: string) => {
     const newNodes = [...specs.nodes];
     newNodes[index] = { ...newNodes[index], [field]: value };
+    updateSpecs({ nodes: newNodes });
+  };
+
+  const addNode = () => {
+    const newNodes = [...specs.nodes, {
+        name: `node-${specs.nodes.length + 1}`,
+        ip: '',
+        role: 'Hybrid' as const
+    }];
+    updateSpecs({ nodes: newNodes });
+  };
+
+  const removeNode = (index: number) => {
+    const newNodes = [...specs.nodes];
+    newNodes.splice(index, 1);
     updateSpecs({ nodes: newNodes });
   };
 
@@ -143,6 +158,8 @@ export const NetworkValidation: React.FC<Props> = ({ specs, updateSpecs, onValid
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [specs]);
 
+  const inputClasses = "w-full px-3 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-suse-base focus:border-transparent placeholder-gray-400 shadow-sm transition-all";
+
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
@@ -167,87 +184,93 @@ export const NetworkValidation: React.FC<Props> = ({ specs, updateSpecs, onValid
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
               
               {/* Subnet */}
-              <div className="bg-gray-50 p-4 rounded-md">
+              <div className="bg-slate-50 p-5 rounded-xl border border-slate-200">
                  <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                    <Network className="w-4 h-4"/> Management Network CIDR
+                    <Network className="w-4 h-4 text-blue-500"/> Management Network CIDR
                  </label>
                  <input 
                    type="text"
-                   placeholder="192.168.10.0/24"
+                   placeholder="e.g. 192.168.10.0/24"
                    value={specs.managementCidr}
                    onChange={(e) => updateSpecs({ managementCidr: e.target.value })}
-                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-suse-base focus:border-transparent"
+                   className={inputClasses}
                  />
-                 <p className="text-xs text-gray-500 mt-1">The subnet used for node management.</p>
+                 <p className="text-xs text-gray-500 mt-2">The subnet used for node management.</p>
               </div>
 
               {/* VLAN */}
-              <div className="bg-gray-50 p-4 rounded-md">
+              <div className="bg-slate-50 p-5 rounded-xl border border-slate-200">
                  <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                    <ShieldCheck className="w-4 h-4"/> VLAN ID (Optional)
+                    <ShieldCheck className="w-4 h-4 text-purple-500"/> VLAN ID (Optional)
                  </label>
                  <input 
                    type="text"
-                   placeholder="100"
+                   placeholder="e.g. 100"
                    value={specs.vlanId}
                    onChange={(e) => updateSpecs({ vlanId: e.target.value })}
-                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-suse-base focus:border-transparent"
+                   className={inputClasses}
                  />
-                 <p className="text-xs text-gray-500 mt-1">Leave empty for untagged access.</p>
+                 <p className="text-xs text-gray-500 mt-2">Leave empty for untagged access.</p>
               </div>
 
               {/* Gateway */}
-              <div className="bg-gray-50 p-4 rounded-md">
+              <div className="bg-slate-50 p-5 rounded-xl border border-slate-200">
                  <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                    <Router className="w-4 h-4"/> Gateway IP
+                    <Router className="w-4 h-4 text-gray-500"/> Gateway IP
                  </label>
                  <input 
                    type="text"
-                   placeholder="192.168.10.1"
+                   placeholder="e.g. 192.168.10.1"
                    value={specs.gatewayIp}
                    onChange={(e) => updateSpecs({ gatewayIp: e.target.value })}
-                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-suse-base focus:border-transparent"
+                   className={inputClasses}
                  />
               </div>
 
               {/* VIP */}
-              <div className="bg-gray-50 p-4 rounded-md border-l-4 border-suse-accent">
+              <div className="bg-emerald-50/50 p-5 rounded-xl border border-emerald-100">
                  <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
                     <CheckCircle2 className="w-4 h-4 text-suse-accent"/> Cluster Virtual IP (VIP)
                  </label>
                  <input 
                    type="text"
-                   placeholder="192.168.10.10"
+                   placeholder="e.g. 192.168.10.10"
                    value={specs.clusterVip}
                    onChange={(e) => updateSpecs({ clusterVip: e.target.value })}
-                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-suse-base focus:border-transparent"
+                   className={inputClasses}
                  />
-                 <p className="text-xs text-gray-500 mt-1">Must be an available IP in the subnet.</p>
+                 <p className="text-xs text-emerald-800 mt-2">Must be an available IP in the subnet.</p>
               </div>
             </div>
 
             {/* Node Configuration Table */}
-            <div className="mb-8 border border-gray-200 rounded-lg overflow-hidden">
-                <div className="bg-gray-100 px-4 py-2 border-b border-gray-200 flex items-center gap-2">
-                    <Server className="w-4 h-4 text-gray-600" />
-                    <h3 className="font-semibold text-gray-700 text-sm">Node Network Configuration</h3>
+            <div className="mb-8 border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+                <div className="bg-gray-50 px-5 py-3 border-b border-gray-200 flex items-center gap-2 justify-between">
+                    <div className="flex items-center gap-2">
+                        <Server className="w-4 h-4 text-gray-600" />
+                        <h3 className="font-semibold text-gray-700 text-sm">Node Network Configuration</h3>
+                    </div>
+                    <div className="text-xs font-bold text-gray-500 bg-gray-200 px-2 py-0.5 rounded-full">
+                        {specs.nodes.length} Nodes
+                    </div>
                 </div>
-                <div className="p-4 bg-gray-50">
-                    <div className="grid grid-cols-12 gap-4 mb-2 text-xs font-bold text-gray-500 uppercase">
-                        <div className="col-span-1">#</div>
-                        <div className="col-span-5">Hostname</div>
+                <div className="p-5 bg-white">
+                    <div className="grid grid-cols-12 gap-4 mb-2 text-xs font-bold text-gray-500 uppercase tracking-wide">
+                        <div className="col-span-1 text-center">#</div>
+                        <div className="col-span-4">Hostname</div>
                         <div className="col-span-6">IP Address</div>
+                        <div className="col-span-1"></div>
                     </div>
                     {specs.nodes.map((node, idx) => (
                         <div key={idx} className="grid grid-cols-12 gap-4 mb-3 items-center">
-                            <div className="col-span-1 text-gray-500 font-mono text-sm">{idx + 1}</div>
-                            <div className="col-span-5">
+                            <div className="col-span-1 text-gray-400 font-bold text-sm text-center bg-gray-50 py-2 rounded">{idx + 1}</div>
+                            <div className="col-span-4">
                                 <input 
                                     type="text"
                                     value={node.name}
                                     onChange={(e) => handleNodeUpdate(idx, 'name', e.target.value)}
-                                    className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-suse-base"
-                                    placeholder={`node-${idx+1}`}
+                                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-suse-base focus:border-transparent placeholder-gray-400"
+                                    placeholder={`e.g. node-${idx+1}`}
                                 />
                             </div>
                             <div className="col-span-6">
@@ -255,26 +278,42 @@ export const NetworkValidation: React.FC<Props> = ({ specs, updateSpecs, onValid
                                     type="text"
                                     value={node.ip}
                                     onChange={(e) => handleNodeUpdate(idx, 'ip', e.target.value)}
-                                    className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-suse-base"
-                                    placeholder="192.168.10.x"
+                                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-suse-base focus:border-transparent placeholder-gray-400 font-mono"
+                                    placeholder="e.g. 192.168.10.x"
                                 />
+                            </div>
+                            <div className="col-span-1 flex justify-center">
+                                <button 
+                                    onClick={() => removeNode(idx)}
+                                    className="text-gray-400 hover:text-red-500 p-2 rounded hover:bg-red-50 transition-colors"
+                                    title="Remove Node"
+                                    disabled={specs.nodes.length <= 1}
+                                >
+                                    <Trash2 className="w-4 h-4" />
+                                </button>
                             </div>
                         </div>
                     ))}
+                    <button 
+                        onClick={addNode}
+                        className="mt-4 flex items-center gap-2 text-xs font-bold text-suse-base hover:text-emerald-700 bg-white border border-suse-base/30 hover:border-suse-base px-4 py-2 rounded-lg transition-all shadow-sm w-full justify-center border-dashed"
+                    >
+                        <Plus className="w-3.5 h-3.5" /> Add Node
+                    </button>
                 </div>
             </div>
 
             {/* DNS */}
-            <div className="bg-gray-50 p-4 rounded-md mb-8">
+            <div className="bg-slate-50 p-5 rounded-xl border border-slate-200 mb-8">
                 <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                <Globe className="w-4 h-4"/> DNS Servers
+                <Globe className="w-4 h-4 text-blue-500"/> DNS Servers
                 </label>
                 <input 
                 type="text"
-                placeholder="8.8.8.8, 1.1.1.1"
+                placeholder="e.g. 8.8.8.8, 1.1.1.1"
                 value={specs.dnsServers}
                 onChange={(e) => updateSpecs({ dnsServers: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-suse-base focus:border-transparent"
+                className={inputClasses}
                 />
             </div>
 

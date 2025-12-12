@@ -36,6 +36,8 @@ export const PocDetailsForm: React.FC<Props> = ({ data, updateData }) => {
     }
   };
 
+  const inputClasses = "w-full pl-3 pr-3 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-suse-base focus:border-suse-base placeholder-gray-400 shadow-sm transition-all";
+
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
@@ -51,13 +53,13 @@ export const PocDetailsForm: React.FC<Props> = ({ data, updateData }) => {
         <div className="mb-8">
             <label className="block text-sm font-bold text-gray-700 mb-1">POC / Project Name</label>
             <div className="relative">
-              <span className="absolute left-3 top-2.5 text-gray-400"><Target className="w-4 h-4"/></span>
+              <span className="absolute left-3 top-3 text-gray-400"><Target className="w-5 h-5"/></span>
               <input 
                 type="text" 
                 value={data.projectName}
                 onChange={(e) => updateData({ projectName: e.target.value })}
-                className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-suse-base focus:border-transparent text-lg"
-                placeholder="e.g. Edge Migration POC - Phase 1"
+                className={`${inputClasses} pl-10 text-lg`}
+                placeholder="e.g. Retail Edge Migration - Phase 1"
               />
             </div>
         </div>
@@ -65,99 +67,107 @@ export const PocDetailsForm: React.FC<Props> = ({ data, updateData }) => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             
             {/* Left Column: Partner / SUSE Lead */}
-            <div className="bg-blue-50/50 p-5 rounded-xl border border-blue-100">
-                <h3 className="text-lg font-bold text-blue-900 mb-4 flex items-center gap-2">
-                    <User className="w-5 h-5 text-blue-600" /> Partner / SUSE Lead
+            <div className="bg-slate-50 p-6 rounded-xl border border-slate-200">
+                <h3 className="text-lg font-bold text-slate-800 mb-5 flex items-center gap-2">
+                    <div className="bg-white p-1.5 rounded-md shadow-sm">
+                        <User className="w-5 h-5 text-blue-600" /> 
+                    </div>
+                    Partner / SUSE Lead
                 </h3>
                 <div className="space-y-4">
                     <div>
-                        <label className="block text-xs font-bold text-blue-800 mb-1">Responsible Engineer</label>
+                        <label className="block text-xs font-bold text-slate-600 mb-1 uppercase tracking-wide">Responsible Engineer</label>
                         <input 
                             type="text" 
                             value={data.leadEngineer}
                             onChange={(e) => updateData({ leadEngineer: e.target.value })}
-                            className="w-full px-3 py-2 border border-blue-200 rounded-md focus:ring-1 focus:ring-blue-500"
-                            placeholder="Your Name"
+                            className={inputClasses}
+                            placeholder="e.g. John Smith"
                         />
                     </div>
                     <div>
-                        <label className="block text-xs font-bold text-blue-800 mb-1">Engineer Email</label>
+                        <label className="block text-xs font-bold text-slate-600 mb-1 uppercase tracking-wide">Engineer Email</label>
                         <input 
                             type="email" 
                             value={data.leadEmail}
                             onChange={(e) => updateData({ leadEmail: e.target.value })}
-                            className="w-full px-3 py-2 border border-blue-200 rounded-md focus:ring-1 focus:ring-blue-500"
-                            placeholder="you@partner.com"
+                            className={inputClasses}
+                            placeholder="john.smith@partner.com"
                         />
                     </div>
                     <div>
-                        <label className="block text-xs font-bold text-blue-800 mb-1">Partner Organization</label>
+                        <label className="block text-xs font-bold text-slate-600 mb-1 uppercase tracking-wide">Partner Organization</label>
                         <input 
                             type="text" 
                             value={data.organization}
                             onChange={(e) => updateData({ organization: e.target.value })}
-                            className="w-full px-3 py-2 border border-blue-200 rounded-md focus:ring-1 focus:ring-blue-500"
-                            placeholder="Your Company Name"
+                            className={inputClasses}
+                            placeholder="e.g. Tech Solutions Inc."
                         />
                     </div>
                 </div>
             </div>
 
             {/* Right Column: Client Info */}
-            <div className="bg-gray-50 p-5 rounded-xl border border-gray-200">
-                <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-                    <Building className="w-5 h-5 text-gray-600" /> Client Information
+            <div className="bg-slate-50 p-6 rounded-xl border border-slate-200">
+                <h3 className="text-lg font-bold text-slate-800 mb-5 flex items-center gap-2">
+                    <div className="bg-white p-1.5 rounded-md shadow-sm">
+                        <Building className="w-5 h-5 text-gray-600" /> 
+                    </div>
+                    Client Information
                 </h3>
                 <div className="space-y-4">
                     <div>
-                        <label className="block text-xs font-bold text-gray-700 mb-1">Client Organization</label>
+                        <label className="block text-xs font-bold text-slate-600 mb-1 uppercase tracking-wide">Client Organization</label>
                         <input 
                             type="text" 
                             value={data.clientOrganization}
                             onChange={(e) => updateData({ clientOrganization: e.target.value })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-suse-base"
-                            placeholder="Client Company Name"
+                            className={inputClasses}
+                            placeholder="e.g. Acme Corp"
                         />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-xs font-bold text-gray-700 mb-1">Contact Name</label>
+                            <label className="block text-xs font-bold text-slate-600 mb-1 uppercase tracking-wide">Contact Name</label>
                             <input 
                                 type="text" 
                                 value={data.clientContactName}
                                 onChange={(e) => updateData({ clientContactName: e.target.value })}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                                placeholder="Client Lead"
+                                className={inputClasses}
+                                placeholder="e.g. Jane Doe"
                             />
                         </div>
                         <div>
-                            <label className="block text-xs font-bold text-gray-700 mb-1">Role / Job Title</label>
+                            <label className="block text-xs font-bold text-slate-600 mb-1 uppercase tracking-wide">Role / Job Title</label>
                             <input 
                                 type="text" 
                                 value={data.clientContactRole}
                                 onChange={(e) => updateData({ clientContactRole: e.target.value })}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                                className={inputClasses}
                                 placeholder="e.g. CTO / SysAdmin"
                             />
                         </div>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                             <label className="block text-xs font-bold text-gray-700 mb-1 flex items-center gap-1"><Mail className="w-3 h-3"/> Email</label>
+                             <label className="block text-xs font-bold text-slate-600 mb-1 uppercase tracking-wide flex items-center gap-1"><Mail className="w-3 h-3"/> Email</label>
                              <input 
                                 type="email"
                                 value={data.clientContactEmail}
                                 onChange={(e) => updateData({ clientContactEmail: e.target.value })}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                                className={inputClasses}
+                                placeholder="jane@acme.com"
                              />
                         </div>
                         <div>
-                             <label className="block text-xs font-bold text-gray-700 mb-1 flex items-center gap-1"><Phone className="w-3 h-3"/> Phone</label>
+                             <label className="block text-xs font-bold text-slate-600 mb-1 uppercase tracking-wide flex items-center gap-1"><Phone className="w-3 h-3"/> Phone</label>
                              <input 
                                 type="tel"
                                 value={data.clientContactPhone}
                                 onChange={(e) => updateData({ clientContactPhone: e.target.value })}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                                className={inputClasses}
+                                placeholder="+1 555-0123"
                              />
                         </div>
                     </div>
@@ -170,23 +180,23 @@ export const PocDetailsForm: React.FC<Props> = ({ data, updateData }) => {
             <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
                 <Calendar className="w-5 h-5 text-suse-accent" /> POC Schedule
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-orange-50/30 p-4 rounded-lg border border-orange-100">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-orange-50/50 p-6 rounded-lg border border-orange-100">
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+                    <label className="block text-sm font-bold text-orange-900 mb-1">Start Date</label>
                     <input 
                     type="date" 
                     value={data.startDate}
                     onChange={(e) => updateData({ startDate: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-suse-base"
+                    className={inputClasses}
                     />
                 </div>
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Expected Completion Date</label>
+                    <label className="block text-sm font-bold text-orange-900 mb-1">Expected Completion Date</label>
                     <input 
                     type="date" 
                     value={data.targetDate}
                     onChange={(e) => updateData({ targetDate: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-suse-base"
+                    className={inputClasses}
                     />
                 </div>
             </div>
@@ -204,7 +214,7 @@ export const PocDetailsForm: React.FC<Props> = ({ data, updateData }) => {
              </div>
           </div>
           
-          <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+          <div className="bg-slate-50 rounded-xl p-6 border border-slate-200">
             <div className="grid grid-cols-1 gap-3">
               {POC_GOALS_OPTIONS.map((goal, index) => {
                 const isSelected = data.goals.includes(goal);
@@ -212,7 +222,7 @@ export const PocDetailsForm: React.FC<Props> = ({ data, updateData }) => {
                   <div 
                     key={index}
                     onClick={() => toggleGoal(goal)}
-                    className={`flex items-start p-3 rounded-lg border cursor-pointer transition-all duration-200 ${isSelected ? 'bg-white border-suse-base shadow-sm ring-1 ring-suse-base' : 'bg-white border-gray-200 hover:border-gray-300 hover:bg-gray-50'}`}
+                    className={`flex items-start p-4 rounded-lg border cursor-pointer transition-all duration-200 ${isSelected ? 'bg-white border-suse-base shadow-md ring-1 ring-suse-base' : 'bg-white border-gray-200 hover:border-gray-300 hover:shadow-sm'}`}
                   >
                     <div className={`mt-0.5 mr-3 transition-colors ${isSelected ? 'text-suse-base' : 'text-gray-300'}`}>
                       {isSelected ? <CheckSquare className="w-5 h-5" /> : <Square className="w-5 h-5" />}
@@ -224,7 +234,7 @@ export const PocDetailsForm: React.FC<Props> = ({ data, updateData }) => {
                 );
               })}
             </div>
-            <div className="mt-4 text-right text-xs text-gray-500">
+            <div className="mt-4 text-right text-xs text-gray-500 font-medium">
                {data.goals.length} goals selected
             </div>
           </div>
