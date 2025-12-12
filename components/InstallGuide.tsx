@@ -1,0 +1,418 @@
+import React, { useState } from 'react';
+import { Server, Settings, Network, HardDrive, Disc, LayoutTemplate, Play, Database, Cloud, ArrowRight, ShieldCheck, Cpu, Shuffle, Lock, Globe, Clock, CheckCircle, Sliders, Laptop } from 'lucide-react';
+
+interface Step {
+  num: number;
+  title: string;
+  description: string;
+}
+
+const StepGuide: React.FC<{ steps: Step[] }> = ({ steps }) => {
+  return (
+    <div className="space-y-8">
+      {steps.map((step, idx) => (
+        <div key={idx} className="relative pl-8 border-l-2 border-gray-200 pb-8 last:pb-0 last:border-0">
+          <div className="absolute -left-[17px] top-0 w-8 h-8 rounded-full bg-suse-base text-white font-bold flex items-center justify-center shadow-sm">
+            {step.num}
+          </div>
+          <h4 className="text-lg font-bold text-gray-800 mb-2">{step.title}</h4>
+          <p className="text-gray-600 leading-relaxed text-sm">{step.description}</p>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+const PortTable: React.FC<{ ports: { port: string, proto: string, desc: string }[] }> = ({ ports }) => (
+  <div className="overflow-hidden border border-gray-200 rounded-lg shadow-sm mb-6">
+    <table className="min-w-full text-sm">
+      <thead className="bg-gray-50 text-gray-700">
+        <tr>
+          <th className="px-4 py-2 text-left">Port</th>
+          <th className="px-4 py-2 text-left">Protocol</th>
+          <th className="px-4 py-2 text-left">Description</th>
+        </tr>
+      </thead>
+      <tbody className="divide-y divide-gray-100">
+        {ports.map((p, i) => (
+          <tr key={i} className="hover:bg-gray-50">
+            <td className="px-4 py-2 font-mono font-bold text-blue-600">{p.port}</td>
+            <td className="px-4 py-2 text-gray-600">{p.proto}</td>
+            <td className="px-4 py-2 text-gray-800">{p.desc}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+);
+
+const CodeBlock: React.FC<{ code: string }> = ({ code }) => (
+  <div className="bg-gray-900 text-gray-100 rounded-lg p-4 font-mono text-sm overflow-x-auto border-l-4 border-suse-base mb-6">
+    <pre>{code}</pre>
+  </div>
+);
+
+export const InstallGuide: React.FC = () => {
+  const [activeSection, setActiveSection] = useState('overview');
+
+  const sections = [
+    { id: 'overview', icon: <LayoutTemplate className="w-4 h-4" />, label: 'Home / Overview' },
+    { id: 'planning', icon: <Cpu className="w-4 h-4" />, label: 'Planning' },
+    { id: 'install', icon: <Play className="w-4 h-4" />, label: 'Installation (ISO)' },
+    { id: 'config', icon: <Settings className="w-4 h-4" />, label: 'Initial Config' },
+    { id: 'network', icon: <Network className="w-4 h-4" />, label: 'Networking' },
+    { id: 'storage', icon: <HardDrive className="w-4 h-4" />, label: 'Storage' },
+    { id: 'vm-images', icon: <Disc className="w-4 h-4" />, label: 'VM Images' },
+    { id: 'vm-mgmt', icon: <Server className="w-4 h-4" />, label: 'VM Management' },
+    { id: 'backup', icon: <Database className="w-4 h-4" />, label: 'Backup & Restore' },
+    { id: 'rancher', icon: <Cloud className="w-4 h-4" />, label: 'Rancher Integration' },
+  ];
+
+  const handleNext = () => {
+    const idx = sections.findIndex(s => s.id === activeSection);
+    if (idx < sections.length - 1) {
+      setActiveSection(sections[idx + 1].id);
+      window.scrollTo(0, 0);
+    }
+  };
+
+  const renderContent = () => {
+    switch(activeSection) {
+      case 'overview':
+        return (
+          <div className="space-y-6 animate-fade-in">
+            <h1 className="text-3xl font-bold text-suse-dark">What is SUSE Virtualization?</h1>
+            <p className="text-gray-600 leading-relaxed">
+              SUSE Virtualization is a modern, open, and interoperable Hyperconverged Infrastructure (HCI) solution built on top of Kubernetes.
+              It is an open-source alternative designed for operators looking for a cloud-native HCI solution.
+              SUSE Virtualization runs on bare metal servers and provides integrated capabilities for virtualization and distributed storage.
+            </p>
+            <div className="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500">
+              <h3 className="font-bold text-blue-800">Key Technologies (Architecture)</h3>
+              <ul className="list-disc ml-5 mt-2 space-y-1 text-sm text-blue-700">
+                <li><strong>Linux OS:</strong> Elemental for SL-Micro 5.5 (Immutable).</li>
+                <li><strong>Kubernetes:</strong> Container orchestration under the hood.</li>
+                <li><strong>KubeVirt:</strong> VM management via KVM.</li>
+                <li><strong>Longhorn:</strong> Distributed block storage and tiering.</li>
+              </ul>
+            </div>
+          </div>
+        );
+
+      case 'planning':
+        return (
+          <div className="space-y-6 animate-fade-in">
+            <h1 className="text-3xl font-bold text-suse-dark">Planning & Requirements</h1>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+                    <h3 className="font-bold text-lg mb-2 flex items-center gap-2"><Cpu className="w-5 h-5 text-purple-500"/> Minimum Hardware</h3>
+                    <ul className="text-sm space-y-2 text-gray-600">
+                        <li><strong>CPU:</strong> x86_64, 8 cores (min) / 16 cores (prod).</li>
+                        <li><strong>RAM:</strong> 32 GB (min) / 64 GB+ (prod).</li>
+                        <li><strong>Disk:</strong> 250 GB SSD/NVMe (5,000+ IOPS).</li>
+                        <li><strong>NIC:</strong> 1 Gbps (min) / 10 Gbps (prod).</li>
+                    </ul>
+                </div>
+                <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+                    <h3 className="font-bold text-lg mb-2 flex items-center gap-2"><Network className="w-5 h-5 text-blue-500"/> Topology</h3>
+                    <p className="text-sm text-gray-600">
+                        A 3-node cluster is required for High Availability (HA). 
+                        The first node is always a management node.
+                    </p>
+                </div>
+            </div>
+
+            <h2 className="text-xl font-bold text-gray-800 mt-8 mb-4">Port Requirements (TCP/UDP)</h2>
+            <p className="text-sm text-gray-500 mb-4">Ensure the following ports are allowed between nodes.</p>
+            
+            <h3 className="font-bold text-sm text-suse-dark uppercase">Essential Ports</h3>
+            <PortTable ports={[
+                { port: "2379-2381", proto: "TCP", desc: "Etcd (Client, Peer, Health)" },
+                { port: "6443", proto: "TCP", desc: "Kubernetes API" },
+                { port: "10250", proto: "TCP", desc: "Kubelet" },
+                { port: "9345", proto: "TCP", desc: "Rancher/K8s API" },
+                { port: "8472", proto: "UDP", desc: "Canal CNI (VxLAN Overlay)" },
+                { port: "22", proto: "TCP", desc: "SSH Access" }
+            ]} />
+          </div>
+        );
+
+      case 'install':
+        return (
+          <div className="space-y-6 animate-fade-in">
+            <h1 className="text-3xl font-bold text-suse-dark">ISO Installation</h1>
+            <p className="text-gray-600 mb-8">Step-by-step guide to install the first node of the cluster.</p>
+            
+            <StepGuide steps={[
+                {
+                    num: 1,
+                    title: "Boot & Installation Mode",
+                    description: "Mount the ISO and boot the server. Select 'Create a new SUSE Virtualization cluster' for the first node."
+                },
+                {
+                    num: 2,
+                    title: "Disk Selection",
+                    description: "Select the Installation Disk (OS) and Data Disk (VM Storage). If using a single disk, set the persistent partition size (min 150GB)."
+                },
+                {
+                    num: 3,
+                    title: "Hostname & Management Network",
+                    description: "Set the Hostname and configure the management network interface (Static IP, Gateway, DNS)."
+                },
+                {
+                    num: 4,
+                    title: "VIP & Cluster Token",
+                    description: "Configure the VIP (Virtual IP) for cluster access and define a secure Token for adding new nodes later."
+                }
+            ]} />
+          </div>
+        );
+
+      case 'config':
+        return (
+          <div className="space-y-6 animate-fade-in">
+            <h1 className="text-3xl font-bold text-suse-dark">Initial Configuration</h1>
+            <div className="bg-white border-l-4 border-yellow-400 p-4 rounded shadow-sm">
+                <p className="text-gray-700">
+                    After installation, the node will reboot. The console will display the Management URL: 
+                    <code className="bg-gray-100 px-2 py-1 rounded ml-2 font-bold">https://your-configured-vip</code>
+                </p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-6">
+                <div className="bg-white p-4 rounded-lg border border-gray-200">
+                    <h3 className="font-bold text-lg mb-2">First Access</h3>
+                    <p className="text-gray-600 mb-4 text-sm">
+                        1. Access the URL in a browser.<br/>
+                        2. Accept the self-signed certificate.<br/>
+                        3. Set the password for the <strong>admin</strong> user.
+                    </p>
+                </div>
+                <div className="bg-white p-4 rounded-lg border border-gray-200">
+                    <h3 className="font-bold text-lg mb-2">Dashboard</h3>
+                    <p className="text-gray-600 mb-4 text-sm">
+                        The Dashboard provides an overview of CPU, Memory, and Storage of the cluster.
+                    </p>
+                </div>
+            </div>
+          </div>
+        );
+
+      case 'network':
+        return (
+          <div className="space-y-6 animate-fade-in">
+            <h1 className="text-3xl font-bold text-suse-dark">Networking</h1>
+            
+            <div className="bg-slate-50 p-6 rounded-xl border border-slate-200">
+                <h3 className="font-bold text-lg text-slate-800 mb-4">Key Concepts</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="bg-white p-4 rounded border border-slate-200">
+                        <span className="font-bold text-blue-600 block mb-1">Management Network</span>
+                        <p className="text-sm text-gray-600">Internal cluster network (Canal/Flannel). Used for communication between nodes. VM IPs on this network are not externally accessible.</p>
+                    </div>
+                    <div className="bg-white p-4 rounded border border-slate-200">
+                        <span className="font-bold text-orange-600 block mb-1">VLAN Network (Bridge)</span>
+                        <p className="text-sm text-gray-600">Connects VMs to the external physical network. Uses Multus + Bridge CNI. Allows VMs to receive IPs from your corporate network (L2).</p>
+                    </div>
+                </div>
+            </div>
+
+            <h3 className="text-xl font-bold mt-8 mb-4">Creating a VLAN Network</h3>
+            <ol className="list-decimal list-inside space-y-4 text-gray-700 bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+                <li>Go to <strong>Networks &gt; VM Networks</strong>.</li>
+                <li>Click <strong>Create</strong>.</li>
+                <li>Select type <strong>L2VlanNetwork</strong>.</li>
+                <li>Define the <strong>VLAN ID</strong> (e.g., 100) and Cluster Network (mgmt).</li>
+                <li>On the <strong>Route</strong> tab, configure Gateway and CIDR if DHCP is not available on the VLAN.</li>
+            </ol>
+          </div>
+        );
+
+      case 'storage':
+        return (
+          <div className="space-y-6 animate-fade-in">
+            <h1 className="text-3xl font-bold text-suse-dark">Storage</h1>
+            <p className="text-gray-600">SUSE Virtualization uses <strong>Longhorn</strong> for distributed block storage.</p>
+
+            <div className="space-y-4">
+                <div className="border border-gray-200 rounded-lg p-4 bg-white">
+                    <h3 className="font-bold text-lg mb-2">Storage Classes</h3>
+                    <p className="text-sm text-gray-600 mb-2">Defines replication policies. By default, 3 replicas are kept for redundancy.</p>
+                    <CodeBlock code={`kind: StorageClass\nname: longhorn\nparameters:\n  numberOfReplicas: "3"`} />
+                </div>
+
+                <div className="border border-gray-200 rounded-lg p-4 bg-white">
+                    <h3 className="font-bold text-lg mb-2">Volumes</h3>
+                    <p className="text-sm text-gray-600 mb-4">Volumes are virtual disks that can be attached to VMs. They can be created empty or from Images.</p>
+                </div>
+            </div>
+          </div>
+        );
+
+      case 'vm-images':
+        return (
+          <div className="space-y-6 animate-fade-in">
+            <h1 className="text-3xl font-bold text-suse-dark">VM Images</h1>
+            <p className="text-gray-600">Support for ISO, RAW, and QCOW2 images.</p>
+
+            <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+                <h3 className="font-bold text-lg mb-4">Step-by-Step: Upload via URL</h3>
+                <ol className="space-y-4">
+                    <li className="flex gap-4">
+                        <div className="bg-gray-100 px-3 py-1 rounded font-bold h-fit">1</div>
+                        <div>Go to the <strong>Images</strong> tab and click <strong>Create</strong>.</div>
+                    </li>
+                    <li className="flex gap-4">
+                        <div className="bg-gray-100 px-3 py-1 rounded font-bold h-fit">2</div>
+                        <div>Enter the name (e.g., <code>opensuse-leap-15.6</code>).</div>
+                    </li>
+                    <li className="flex gap-4">
+                        <div className="bg-gray-100 px-3 py-1 rounded font-bold h-fit">3</div>
+                        <div>Select <strong>Download via URL</strong> and paste the qcow2 image link.</div>
+                    </li>
+                    <li className="flex gap-4">
+                        <div className="bg-gray-100 px-3 py-1 rounded font-bold h-fit">4</div>
+                        <div>Click Create and wait for the status to change to <span className="text-green-600 font-bold">Active</span>.</div>
+                    </li>
+                </ol>
+            </div>
+          </div>
+        );
+
+      case 'vm-mgmt':
+        return (
+          <div className="space-y-6 animate-fade-in">
+            <h1 className="text-3xl font-bold text-suse-dark">VM Management</h1>
+            
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="bg-white p-4 rounded-lg border border-gray-200">
+                    <h3 className="font-bold text-lg">Create VM</h3>
+                    <p className="text-sm text-gray-600">Configure CPU, Memory, SSH Keys, and Networks. Use Cloud-Init in the Advanced tab for automation.</p>
+                </div>
+                <div className="bg-white p-4 rounded-lg border border-gray-200">
+                    <h3 className="font-bold text-lg">Console Access</h3>
+                    <p className="text-sm text-gray-600">Access via VNC (Graphic) or Serial (Text) directly from the browser.</p>
+                </div>
+            </div>
+
+            <div className="bg-purple-50 p-6 rounded-lg border border-purple-100 mt-6">
+                <h3 className="font-bold text-purple-900 mb-2 flex items-center gap-2">
+                    <Shuffle className="w-5 h-5"/> Live Migration
+                </h3>
+                <p className="text-sm text-purple-800 mb-4">
+                    Move VMs between nodes without downtime. Requires Shared Storage (Longhorn) and correctly configured networks.
+                </p>
+                <div className="bg-white p-3 rounded text-sm text-gray-600 border border-purple-100">
+                    Action: Select VM &gt; Click 3 dots &gt; <strong>Migrate</strong> &gt; Choose Target Node.
+                </div>
+            </div>
+          </div>
+        );
+
+      case 'backup':
+        return (
+          <div className="space-y-6 animate-fade-in">
+            <h1 className="text-3xl font-bold text-suse-dark">Backup & Restore</h1>
+            <p className="text-gray-600">Configure external targets for data safety.</p>
+
+            <div className="space-y-6">
+                <div className="border-l-4 border-blue-500 pl-4">
+                    <h3 className="font-bold text-lg">1. Configure Backup Target</h3>
+                    <p className="text-sm text-gray-600 mb-2">Go to <strong>Advanced Settings &gt; backup-target</strong>.</p>
+                    <p className="text-sm text-gray-600">Supports S3 (AWS/MinIO) and NFS.</p>
+                    <CodeBlock code={`type: s3\nendpoint: https://s3.amazonaws.com\nbucketName: my-backups\naccessKeyId: ...\nsecretAccessKey: ...`} />
+                </div>
+
+                <div className="border-l-4 border-green-500 pl-4">
+                    <h3 className="font-bold text-lg">2. Take Backup</h3>
+                    <p className="text-sm text-gray-600">Go to Virtual Machines, select the VM, and click <strong>Take Backup</strong>.</p>
+                </div>
+
+                <div className="border-l-4 border-orange-500 pl-4">
+                    <h3 className="font-bold text-lg">3. Restore</h3>
+                    <p className="text-sm text-gray-600">Go to <strong>Backup & Snapshot</strong>, select the backup, and choose:</p>
+                    <ul className="list-disc ml-5 text-sm text-gray-600">
+                        <li><strong>New VM:</strong> Creates a clone.</li>
+                        <li><strong>Replace Existing:</strong> Overwrites current VM.</li>
+                    </ul>
+                </div>
+            </div>
+          </div>
+        );
+
+      case 'rancher':
+        return (
+          <div className="space-y-6 animate-fade-in">
+            <h1 className="text-3xl font-bold text-suse-dark">Rancher Integration</h1>
+            <p className="text-gray-600">Manage multiple SUSE Virtualization clusters and Kubernetes workloads from a single pane of glass.</p>
+
+            <StepGuide steps={[
+                {
+                    num: 1,
+                    title: "Virtualization Management",
+                    description: "In Rancher Manager, access the menu and select 'Virtualization Management'."
+                },
+                {
+                    num: 2,
+                    title: "Import Cluster",
+                    description: "Click 'Import Existing' and provide a name for the cluster."
+                },
+                {
+                    num: 3,
+                    title: "Run Registration Command",
+                    description: "Copy the provided kubectl command and run it in the terminal of the SUSE Virtualization management node."
+                }
+            ]} />
+            
+            <div className="bg-green-50 p-4 rounded-lg mt-6 text-green-900 border border-green-200">
+                <strong>Benefit:</strong> Once imported, you can provision RKE2 clusters directly on top of SUSE Virtualization VMs using the native Node Driver.
+            </div>
+          </div>
+        );
+
+      default: return null;
+    }
+  };
+
+  return (
+    <div className="flex flex-col lg:flex-row gap-8 min-h-[600px]">
+      {/* Sidebar Navigation */}
+      <aside className="lg:w-64 flex-shrink-0">
+        <nav className="space-y-1 sticky top-24">
+          {sections.map((section) => (
+            <button
+              key={section.id}
+              onClick={() => setActiveSection(section.id)}
+              className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg transition-colors ${
+                activeSection === section.id
+                  ? 'bg-suse-base text-white shadow-md'
+                  : 'text-gray-600 hover:bg-gray-100'
+              }`}
+            >
+              {section.icon}
+              {section.label}
+            </button>
+          ))}
+        </nav>
+      </aside>
+
+      {/* Main Content Area */}
+      <div className="flex-1 bg-white p-8 rounded-xl border border-gray-200 shadow-sm">
+        {renderContent()}
+        
+        {/* Navigation Footer */}
+        <div className="mt-12 pt-6 border-t border-gray-100 flex justify-end">
+            {activeSection !== 'rancher' && (
+                <button 
+                    onClick={handleNext}
+                    className="flex items-center gap-2 bg-gray-900 text-white px-6 py-3 rounded-lg hover:bg-black transition-colors"
+                >
+                    Next Topic <ArrowRight className="w-4 h-4" />
+                </button>
+            )}
+        </div>
+      </div>
+    </div>
+  );
+};

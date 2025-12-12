@@ -1,0 +1,5 @@
+{
+  "name": "SUSE Virtualization POC Assistant",
+  "description": "A guided wizard for validating hardware requirements, tracking installation steps, and managing Proof of Concept data for SUSE Virtualization deployments based on official documentation.",
+  "requestFramePermissions": []
+}
