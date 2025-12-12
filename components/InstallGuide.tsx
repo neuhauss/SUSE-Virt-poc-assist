@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Server, Settings, Network, HardDrive, Disc, LayoutTemplate, Play, Database, Cloud, ArrowRight, ShieldCheck, Cpu, Shuffle, Lock, Globe, Clock, CheckCircle, Sliders, Laptop } from 'lucide-react';
+import { Server, Settings, Network, HardDrive, Disc, LayoutTemplate, Play, Database, Cloud, ArrowRight, ShieldCheck, Cpu, Shuffle, Lock, Globe, Clock, CheckCircle, Sliders, Laptop, ExternalLink } from 'lucide-react';
 import { UISnapshot } from './ui/UISnapshot';
 
 interface Step {
@@ -164,28 +164,28 @@ export const InstallGuide: React.FC = () => {
                     num: 1,
                     title: "Boot & Installation Mode",
                     description: "Mount the ISO and boot the server. Select 'Create a new SUSE Virtualization cluster' for the first node.",
-                    imgSrc: "https://placehold.co/600x400/000000/FFFFFF?text=GRUB+Menu:+Create+New+Cluster",
+                    imgSrc: "https://placehold.co/600x400/2d3748/FFFFFF?text=GRUB+Menu:+Create+New+Cluster",
                     caption: "Figure: Installation Mode Selection (Create/Join)"
                 },
                 {
                     num: 2,
                     title: "Disk Selection",
                     description: "Select the Installation Disk (OS) and Data Disk (VM Storage). If using a single disk, set the persistent partition size (min 150GB).",
-                    imgSrc: "https://placehold.co/600x400/000000/FFFFFF?text=Select+Installation+Disk",
+                    imgSrc: "https://placehold.co/600x400/2d3748/FFFFFF?text=Select+Installation+Disk",
                     caption: "Figure: Disk Selection"
                 },
                 {
                     num: 3,
                     title: "Hostname & Management Network",
                     description: "Set the Hostname and configure the management network interface (Static IP, Gateway, DNS).",
-                    imgSrc: "https://placehold.co/600x400/000000/FFFFFF?text=Configure+Static+IP:+192.168.10.20",
+                    imgSrc: "https://placehold.co/600x400/2d3748/FFFFFF?text=Configure+Static+IP:+192.168.10.20",
                     caption: "Figure: Management Interface Configuration"
                 },
                 {
                     num: 4,
                     title: "VIP & Cluster Token",
                     description: "Configure the VIP (Virtual IP) for cluster access and define a secure Token for adding new nodes later.",
-                    imgSrc: "https://placehold.co/600x400/000000/FFFFFF?text=VIP:+192.168.10.10%0AToken:+*******",
+                    imgSrc: "https://placehold.co/600x400/2d3748/FFFFFF?text=VIP:+192.168.10.10%0AToken:+*******",
                     caption: "Figure: High Availability Configuration (VIP)"
                 }
             ]} />
@@ -400,35 +400,93 @@ export const InstallGuide: React.FC = () => {
       case 'rancher':
         return (
           <div className="space-y-6 animate-fade-in">
-            <h1 className="text-3xl font-bold text-suse-dark">Rancher Integration</h1>
-            <p className="text-gray-600">Manage multiple SUSE Virtualization clusters and Kubernetes workloads from a single pane of glass.</p>
+            <h1 className="text-3xl font-bold text-suse-dark">Rancher Integration & RKE2 Provisioning</h1>
+            <p className="text-gray-600">
+              Integrate SUSE Virtualization with Rancher Manager to enable multi-cluster management and provision downstream Kubernetes (RKE2/K3s) clusters directly on top of VMs.
+            </p>
+
+            <div className="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6">
+                <h4 className="font-bold text-blue-800 text-sm uppercase mb-1">Prerequisites</h4>
+                <ul className="list-disc ml-5 text-sm text-blue-700">
+                    <li>Rancher Manager v2.6.3+ (v2.7+ recommended).</li>
+                    <li><strong>Network:</strong> Rancher must be reachable from SUSE Virtualization VIP (port 443), and SUSE Virtualization VIP must be reachable from Rancher.</li>
+                    <li><strong>Feature Flag:</strong> Ensure 'Virtualization Management' (Harvester) is enabled in Rancher Global Settings.</li>
+                </ul>
+            </div>
 
             <StepGuide steps={[
                 {
                     num: 1,
-                    title: "Virtualization Management",
-                    description: "In Rancher Manager, access the menu and select 'Virtualization Management'.",
-                    imgSrc: "https://placehold.co/600x200/e2e8f0/475569?text=Rancher+Menu",
-                    caption: "Figure: Rancher Menu v2.6+"
+                    title: "Enable Virtualization Management",
+                    description: "In Rancher, navigate to Global Settings > Feature Flags. Locate 'harvester' and ensure it is set to 'Active'. This enables the Harvester node driver and dashboard integration.",
+                    imgSrc: "https://placehold.co/800x400/2c3e50/ffffff?text=Rancher+Menu:+Enable+Harvester+Flag",
+                    caption: "Figure: Enable Harvester Feature Flag"
                 },
                 {
                     num: 2,
                     title: "Import Cluster",
-                    description: "Click 'Import Existing' and provide a name for the cluster.",
-                    imgSrc: "https://placehold.co/600x200/e2e8f0/475569?text=Import+Cluster",
-                    caption: "Figure: Import Screen"
+                    description: "Navigate to 'Virtualization Management' in the side menu. Click 'Import Existing', name your cluster (e.g., 'harvester-poc'), and click Create.",
+                    imgSrc: "https://placehold.co/800x400/e2e8f0/475569?text=Rancher:+Import+Harvester+Cluster",
+                    caption: "Figure: Import Cluster Wizard"
                 },
                 {
                     num: 3,
-                    title: "Run Registration Command",
-                    description: "Copy the provided kubectl command and run it in the terminal of the SUSE Virtualization management node.",
-                    imgSrc: "https://placehold.co/600x150/000000/FFFFFF?text=kubectl+apply+-f+https://rancher...",
-                    caption: "Figure: Registration Command"
+                    title: "Register via SSH",
+                    description: "Copy the `kubectl apply` command generated by Rancher. SSH into any SUSE Virtualization node (user: rancher) and run the command. This installs the cattle-cluster-agent.",
+                    imgSrc: "https://placehold.co/600x150/1e293b/FFFFFF?text=rancher@node1:~>+kubectl+apply+-f+https://rancher.../import.yaml",
+                    caption: "Figure: Registration Command Execution"
+                },
+                {
+                   num: 4,
+                   title: "Create RKE2 Guest Cluster",
+                   description: "Once Active, go to Cluster Management > Create > RKE2/K3s > Harvester. Select the imported Harvester cluster as the Cloud Credential.",
+                   imgSrc: "https://placehold.co/800x500/e2e8f0/475569?text=Rancher:+Create+RKE2+on+Harvester",
+                   caption: "Figure: Provision RKE2 Cluster"
+                },
+                {
+                   num: 5,
+                   title: "Configure Node Pools",
+                   description: "Define Machine Pools for your Kubernetes nodes. You can specify CPU, Memory, and Disk size directly. Rancher will spin up VMs in SUSE Virtualization automatically.",
+                   imgSrc: "https://placehold.co/800x400/e2e8f0/475569?text=RKE2+Node+Pools:+VM+Sizing",
+                   caption: "Figure: Machine Pool Configuration"
                 }
             ]} />
             
-            <div className="bg-green-50 p-4 rounded-lg mt-6 text-green-900 border border-green-200">
-                <strong>Benefit:</strong> Once imported, you can provision RKE2 clusters directly on top of SUSE Virtualization VMs using the native Node Driver.
+            <div className="mt-8 border-t border-gray-200 pt-8">
+                <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                    <ShieldCheck className="w-5 h-5 text-suse-base"/> Troubleshooting & Verification
+                </h3>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+                        <h4 className="font-bold text-red-600 mb-2">Cluster Stuck in "Pending"</h4>
+                        <ul className="list-disc ml-5 text-sm text-gray-500 space-y-1">
+                            <li><strong>Connectivity:</strong> Can the Harvester nodes reach the Rancher URL? Check DNS and Firewalls.</li>
+                            <li><strong>Certificates:</strong> If using self-signed certs on Rancher, ensure the `CATTLE_CA_CHECKSUM` is correct in the import YAML.</li>
+                            <li><strong>Logs:</strong> Check `kubectl logs -n cattle-system -l app=cattle-cluster-agent`.</li>
+                        </ul>
+                    </div>
+                    
+                    <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+                         <h4 className="font-bold text-amber-600 mb-2">Cloud Provider Issues</h4>
+                         <ul className="list-disc ml-5 text-sm text-gray-500 space-y-1">
+                             <li><strong>Load Balancer:</strong> If LoadBalancer services stay 'Pending', check if the `harvester-load-balancer` is enabled in the RKE2 config.</li>
+                             <li><strong>IP Pool:</strong> Ensure a VM Network IP Pool is configured in SUSE Virtualization for the VLAN used by the guest cluster.</li>
+                         </ul>
+                    </div>
+                </div>
+
+                <div className="mt-6 flex gap-4 flex-wrap">
+                    <a href="https://ranchermanager.docs.rancher.com/how-to-guides/new-user-guides/manage-clusters/register-existing-clusters" target="_blank" rel="noreferrer" className="flex items-center gap-2 text-sm font-bold text-blue-600 hover:underline">
+                        <ExternalLink className="w-4 h-4" /> Official Rancher Registration Docs
+                    </a>
+                     <a href="https://docs.harvesterhci.io/v1.4/rancher/rancher-integration/" target="_blank" rel="noreferrer" className="flex items-center gap-2 text-sm font-bold text-blue-600 hover:underline">
+                        <ExternalLink className="w-4 h-4" /> SUSE Virtualization Integration Guide
+                    </a>
+                    <a href="https://docs.harvesterhci.io/v1.4/troubleshooting/rancher/" target="_blank" rel="noreferrer" className="flex items-center gap-2 text-sm font-bold text-blue-600 hover:underline">
+                        <ExternalLink className="w-4 h-4" /> Troubleshooting Guide
+                    </a>
+                </div>
             </div>
           </div>
         );

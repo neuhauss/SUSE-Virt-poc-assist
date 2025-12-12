@@ -27,15 +27,15 @@ interface GoalConfig {
   docs: DocLink[];
 }
 
-// Images sourced from Harvester Docs to match PDF visuals
+// Using descriptive placeholders to ensure stability and prevent 404s from external doc site changes
 const IMAGES = {
-  INSTALL_MODE: "https://docs.harvesterhci.io/assets/images/install-mode-c393796503ba69650942544719586146.png",
-  INSTALL_DISK: "https://docs.harvesterhci.io/assets/images/install-disk-0c15981600a9314949a20727d53d100b.png",
-  NETWORK_CONFIG: "https://docs.harvesterhci.io/assets/images/install-network-c4196162a04875320e64c390238c351e.png",
-  DASHBOARD_VOL: "https://docs.harvesterhci.io/assets/images/create-volume-325d7020d8892306915667c304245657.png",
-  DASHBOARD_IMG: "https://docs.harvesterhci.io/assets/images/create-image-url-0a256247738321683935213645068285.png",
-  DASHBOARD_VM: "https://docs.harvesterhci.io/assets/images/create-vm-923f7956461a20721245842c94389279.png",
-  BACKUP_TARGET: "https://docs.harvesterhci.io/assets/images/backup-target-setting-f06316279f66810c926955038f929312.png"
+  INSTALL_MODE: "https://placehold.co/800x500/2d3748/ffffff?text=Installer:+Create+New+Cluster+Mode",
+  INSTALL_DISK: "https://placehold.co/800x500/2d3748/ffffff?text=Installer:+Disk+Selection+(OS+vs+Data)",
+  NETWORK_CONFIG: "https://placehold.co/800x500/2d3748/ffffff?text=Installer:+Management+NIC+%26+Static+IP",
+  DASHBOARD_VOL: "https://placehold.co/800x400/f1f5f9/475569?text=Dashboard:+Create+Volume+Form",
+  DASHBOARD_IMG: "https://placehold.co/800x400/f1f5f9/475569?text=Dashboard:+Create+Image+(URL+Import)",
+  DASHBOARD_VM: "https://placehold.co/800x500/f1f5f9/475569?text=Dashboard:+Create+VM+Wizard+(CPU/RAM/Disks)",
+  BACKUP_TARGET: "https://placehold.co/800x400/f1f5f9/475569?text=Settings:+Backup+Target+(S3/NFS)"
 };
 
 const GOAL_DATA: Record<string, GoalConfig> = {
@@ -182,7 +182,12 @@ const GOAL_DATA: Record<string, GoalConfig> = {
     steps: [
       { type: 'action', label: "1. Settings", description: <span>Go to <strong>Advanced</strong> > <strong>Settings</strong>. Find <code>backup-target</code> in the list.</span> },
       { type: 'action', label: "2. Edit", description: <span>Click the <strong>⋮ (3 dots)</strong> on the right > <strong>Edit Setting</strong>.</span> },
-      { type: 'action', label: "3. Configure S3/NFS", description: <span><strong>Type:</strong> Select <code>S3</code> or <code>NFS</code>.<br/><strong>Endpoint:</strong> (e.g. <code>http://minio:9000</code>).<br/><strong>Bucket:</strong> <code>backups</code>.<br/><strong>Region:</strong> <code>us-east-1</code>.<br/><strong>Access/Secret Key:</strong> Enter credentials.</span> },
+      { 
+        type: 'action', 
+        label: "3. Configure S3/NFS", 
+        description: <span><strong>Type:</strong> Select <code>S3</code> or <code>NFS</code>.<br/><strong>Endpoint:</strong> (e.g. <code>http://minio:9000</code>).<br/><strong>Bucket:</strong> <code>backups</code>.<br/><strong>Region:</strong> <code>us-east-1</code>.<br/><strong>Access/Secret Key:</strong> Enter credentials.</span>,
+        refImage: IMAGES.BACKUP_TARGET
+      },
       { type: 'verify', label: "4. Test", description: <span>Click <strong>Save</strong>. The system will immediately attempt to connect. If it fails, an error will appear at the bottom.</span> }
     ],
     docs: [
