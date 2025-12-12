@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ChecklistItem } from '../types';
-import { Database, MousePointer, Terminal, CheckCircle, ChevronDown, ChevronUp, CheckSquare, Square, Flag, ExternalLink, HelpCircle, ArrowRight, Play, Settings } from 'lucide-react';
+import { Database, MousePointer, Terminal, CheckCircle, ChevronDown, ChevronUp, CheckSquare, Square, Flag, ExternalLink, HelpCircle, ArrowRight, Play, Settings, Monitor, Image as ImageIcon } from 'lucide-react';
+import { UISnapshot } from './ui/UISnapshot';
 
 interface Props {
   onComplete: (isComplete: boolean) => void;
@@ -10,8 +11,9 @@ interface Props {
 interface StepDetail {
   type: 'action' | 'command' | 'verify';
   label: string;
-  description?: React.ReactNode; 
+  description?: React.ReactNode; // Changed to ReactNode to support formatting
   code?: string;
+  refImage?: string; 
 }
 
 interface DocLink {
@@ -25,6 +27,17 @@ interface GoalConfig {
   docs: DocLink[];
 }
 
+// Images sourced from Harvester Docs to match PDF visuals
+const IMAGES = {
+  INSTALL_MODE: "https://docs.harvesterhci.io/assets/images/install-mode-c393796503ba69650942544719586146.png",
+  INSTALL_DISK: "https://docs.harvesterhci.io/assets/images/install-disk-0c15981600a9314949a20727d53d100b.png",
+  NETWORK_CONFIG: "https://docs.harvesterhci.io/assets/images/install-network-c4196162a04875320e64c390238c351e.png",
+  DASHBOARD_VOL: "https://docs.harvesterhci.io/assets/images/create-volume-325d7020d8892306915667c304245657.png",
+  DASHBOARD_IMG: "https://docs.harvesterhci.io/assets/images/create-image-url-0a256247738321683935213645068285.png",
+  DASHBOARD_VM: "https://docs.harvesterhci.io/assets/images/create-vm-923f7956461a20721245842c94389279.png",
+  BACKUP_TARGET: "https://docs.harvesterhci.io/assets/images/backup-target-setting-f06316279f66810c926955038f929312.png"
+};
+
 const GOAL_DATA: Record<string, GoalConfig> = {
   "Provision hosts through the ISO installer": {
     goal: "Install SUSE Virtualization on bare metal (PDF Pages 13-18).",
@@ -32,17 +45,20 @@ const GOAL_DATA: Record<string, GoalConfig> = {
       { 
         type: 'action', 
         label: "1. Boot & Install Mode", 
-        description: <span>Boot the server with the ISO. Select <strong>SUSE Virtualization Installer</strong>. On the first screen, select <strong>Create a new SUSE Virtualization cluster</strong> (for the first node).</span>
+        description: <span>Boot the server with the ISO. Select <strong>SUSE Virtualization Installer</strong>. On the first screen, select <strong>Create a new SUSE Virtualization cluster</strong> (for the first node).</span>,
+        refImage: IMAGES.INSTALL_MODE
       },
       { 
         type: 'action', 
         label: "2. Disk Selection", 
-        description: <span>Select the <strong>Installation disk</strong> (OS) and a separate <strong>Data disk</strong> (Storage). If using one disk, set <strong>Persistent size</strong> to at least 150 GiB.</span>
+        description: <span>Select the <strong>Installation disk</strong> (OS) and a separate <strong>Data disk</strong> (Storage). If using one disk, set <strong>Persistent size</strong> to at least 150 GiB.</span>,
+        refImage: IMAGES.INSTALL_DISK
       },
       { 
         type: 'action', 
         label: "3. Hostname & Network", 
-        description: <span>Enter a unique <strong>HostName</strong> (e.g., <code>node-01</code>). Select the Management NIC (creates <code>mgmt-bo</code> bond). Select <strong>Static</strong> IPv4 and enter IP/Gateway/DNS.</span>
+        description: <span>Enter a unique <strong>HostName</strong> (e.g., <code>node-01</code>). Select the Management NIC (creates <code>mgmt-bo</code> bond). Select <strong>Static</strong> IPv4 and enter IP/Gateway/DNS.</span>,
+        refImage: IMAGES.NETWORK_CONFIG
       },
       { 
         type: 'action', 
@@ -81,7 +97,8 @@ const GOAL_DATA: Record<string, GoalConfig> = {
       { 
         type: 'action', 
         label: "1. Navigation", 
-        description: <span>Go to the left menu <strong>Images</strong> and click the blue <strong>Create</strong> button.</span>
+        description: <span>Go to the left menu <strong>Images</strong> and click the blue <strong>Create</strong> button.</span>,
+        refImage: IMAGES.DASHBOARD_IMG 
       },
       { 
         type: 'action', 
@@ -115,7 +132,8 @@ const GOAL_DATA: Record<string, GoalConfig> = {
       { 
         type: 'action', 
         label: "2. Create Volume", 
-        description: <span>Go to <strong>Volumes</strong> menu. Click <strong>Create</strong>.</span>
+        description: <span>Go to <strong>Volumes</strong> menu. Click <strong>Create</strong>.</span>,
+        refImage: IMAGES.DASHBOARD_VOL
       },
       { 
         type: 'action', 
@@ -148,7 +166,8 @@ const GOAL_DATA: Record<string, GoalConfig> = {
       { 
         type: 'action', 
         label: "2. Basics Tab", 
-        description: <span><strong>Name:</strong> <code>web-server-01</code>.<br/><strong>CPU:</strong> <code>1</code> Core.<br/><strong>Memory:</strong> <code>2</code> GiB.<br/><strong>SSH Key:</strong> Select your uploaded key.</span>
+        description: <span><strong>Name:</strong> <code>web-server-01</code>.<br/><strong>CPU:</strong> <code>1</code> Core.<br/><strong>Memory:</strong> <code>2</code> GiB.<br/><strong>SSH Key:</strong> Select your uploaded key.</span>,
+        refImage: IMAGES.DASHBOARD_VM
       },
       { type: 'action', label: "3. Volumes Tab", description: <span>Click <strong>Add Volume</strong> (if not present).<br/><strong>Source:</strong> VM Image.<br/><strong>Image:</strong> Select <code>opensuse-15.6</code> (uploaded previously).</span> },
       { type: 'action', label: "4. Networks Tab", description: <span>By default, <code>default</code> (management) is added. To use the VLAN, click <strong>Add Network</strong> and select <code>vlan-100</code>.</span> },
@@ -402,6 +421,16 @@ export const InitialConfig: React.FC<Props> = ({ onComplete, goals = [] }) => {
                                                         {s.code}
                                                     </div>
                                                 )}
+                                                {/* If step has a specific image reference, render it inline or via the snapshot component */}
+                                                {s.refImage && (
+                                                   <div className="mt-3 block xl:hidden">
+                                                      <UISnapshot 
+                                                        type="dashboard" 
+                                                        imageSrc={s.refImage} 
+                                                        title={s.label}
+                                                      />
+                                                   </div>
+                                                )}
                                             </div>
                                         </div>
                                     ))}
@@ -422,8 +451,25 @@ export const InitialConfig: React.FC<Props> = ({ onComplete, goals = [] }) => {
                         )}
                     </div>
 
-                    {/* RIGHT COLUMN: Docs */}
-                    <div className="w-full xl:w-[300px] flex-shrink-0 space-y-4">
+                    {/* RIGHT COLUMN: Visual Reference (Snapshot) & Docs */}
+                    <div className="w-full xl:w-[400px] flex-shrink-0 space-y-4">
+                        
+                         {/* Display the Image for the FIRST step that has one, or a generic one */}
+                         {goalConfig && goalConfig.steps.some(s => s.refImage) && (
+                            <div className="hidden xl:block">
+                                <h6 className="text-xs font-bold text-gray-500 uppercase mb-2 flex items-center gap-2">
+                                    <ImageIcon className="w-4 h-4"/> Reference UI
+                                </h6>
+                                <UISnapshot 
+                                    type={goalConfig.goal.includes('Install') ? 'console' : 'dashboard'}
+                                    imageSrc={goalConfig.steps.find(s => s.refImage)?.refImage}
+                                    title="Visual Guide"
+                                    onClick={() => window.open(goalConfig.steps.find(s => s.refImage)?.refImage, '_blank')}
+                                />
+                                <p className="text-xs text-center text-gray-400 mt-1">Click to zoom</p>
+                            </div>
+                         )}
+
                          <div className="bg-white rounded-lg border border-gray-200 p-4">
                             <h6 className="text-xs font-bold text-gray-500 uppercase mb-3 flex items-center gap-2">
                                 <HelpCircle className="w-4 h-4"/> Documentation

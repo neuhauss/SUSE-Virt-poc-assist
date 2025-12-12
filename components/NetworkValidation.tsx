@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { NetworkSpecs, ValidationStatus } from '../types';
-import { Network, Router, Globe, AlertTriangle, CheckCircle2, ShieldCheck, Eye, EyeOff, Server, HardDrive, Lock, RefreshCw, XCircle, ExternalLink, Info } from 'lucide-react';
+import { Network, Router, Globe, AlertTriangle, CheckCircle2, ShieldCheck, Eye, EyeOff, Server, HardDrive, Lock, RefreshCw, XCircle, ExternalLink } from 'lucide-react';
 
 interface Props {
   specs: NetworkSpecs;
@@ -289,8 +289,8 @@ export const NetworkValidation: React.FC<Props> = ({ specs, updateSpecs, onValid
                </button>
                
                {showTopology && (
-                  <div className="bg-slate-50 border border-slate-200 rounded-xl p-8 pt-20 mt-4 animate-fade-in relative overflow-x-auto">
-                    <div className="flex flex-col items-center min-w-[600px] w-full mx-auto z-10 relative px-4">
+                  <div className="bg-slate-50 border border-slate-200 rounded-xl p-8 mt-4 animate-fade-in relative overflow-hidden">
+                    <div className="flex flex-col items-center w-full max-w-4xl mx-auto z-10 relative">
                       
                       {/* Level 1: Internet */}
                       <div 
@@ -316,10 +316,9 @@ export const NetworkValidation: React.FC<Props> = ({ specs, updateSpecs, onValid
                         <div className={`p-4 rounded-xl border-2 shadow-sm transition-all duration-300 bg-white ${hoveredElement === 'gateway' || hoveredElement === 'internet' ? 'border-blue-500 shadow-blue-100 ring-2 ring-blue-100' : 'border-gray-300'}`}>
                            <Router className={`w-8 h-8 ${hoveredElement === 'gateway' || hoveredElement === 'internet' ? 'text-blue-600' : 'text-gray-600'}`} />
                         </div>
-                        <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-white px-3 py-1.5 rounded-lg border border-gray-200 shadow-sm whitespace-nowrap hidden group-hover:block z-50 animate-fade-in">
-                           <div className="text-xs font-bold text-gray-500 uppercase text-center">Gateway IP</div>
+                        <div className="absolute left-full ml-4 top-1/2 -translate-y-1/2 bg-white px-3 py-1.5 rounded-lg border border-gray-200 shadow-sm whitespace-nowrap hidden group-hover:block z-30 animate-fade-in">
+                           <div className="text-xs font-bold text-gray-500 uppercase">Gateway IP</div>
                            <div className="font-mono text-sm text-blue-600">{specs.gatewayIp || 'Not Configured'}</div>
-                           <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-white"></div>
                         </div>
                       </div>
 
@@ -355,30 +354,34 @@ export const NetworkValidation: React.FC<Props> = ({ specs, updateSpecs, onValid
                                   <ShieldCheck className={`w-6 h-6 ${hoveredElement === 'vip' ? 'text-emerald-600' : 'text-emerald-400'}`} />
                                </div>
                                {/* Tooltip */}
-                               <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-white px-3 py-1.5 rounded-lg border border-emerald-100 shadow-md whitespace-nowrap z-50 hidden group-hover:block">
-                                  <div className="text-xs font-bold text-gray-500 uppercase text-center">Cluster VIP</div>
+                               <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-white px-3 py-1.5 rounded-lg border border-emerald-100 shadow-md whitespace-nowrap z-30 hidden group-hover:block">
+                                  <div className="text-xs font-bold text-gray-500 uppercase">Cluster VIP</div>
                                   <div className="font-mono text-sm text-emerald-600">{specs.clusterVip || 'Pending'}</div>
-                                  <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-white"></div>
                                </div>
                             </div>
                         </div>
                       </div>
 
                       {/* Connection Lines from Bus to Nodes */}
-                      <div className="flex justify-center gap-6 w-full px-4 h-8 -mt-8">
-                          {specs.nodes.map((_, i) => (
-                              <div key={i} className="flex justify-center w-40 shrink-0 h-full pt-8">
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-6 w-full px-4 h-8 -mt-8">
+                          {specs.nodes.slice(0, 4).map((_, i) => (
+                              <div key={i} className="flex justify-center h-full pt-8">
                                   <div className={`w-0.5 h-full transition-colors duration-300 ${hoveredElement === `node-${i}` ? 'bg-blue-400' : 'bg-gray-300'}`}></div>
                               </div>
                           ))}
+                          {specs.nodes.length > 4 && (
+                               <div className="flex justify-center h-full pt-8">
+                                  <div className="w-0.5 h-full bg-gray-300"></div>
+                               </div>
+                          )}
                       </div>
 
                       {/* Level 4: Nodes */}
-                      <div className="flex justify-center gap-6 w-full px-4 pb-4">
-                         {specs.nodes.map((node, i) => (
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-6 w-full px-4">
+                         {specs.nodes.slice(0, 4).map((node, i) => (
                            <div 
                              key={i} 
-                             className="flex flex-col items-center group relative w-40 shrink-0"
+                             className="flex flex-col items-center group relative"
                              onMouseEnter={() => setHoveredElement(`node-${i}`)}
                              onMouseLeave={() => setHoveredElement(null)}
                            >
@@ -396,17 +399,18 @@ export const NetworkValidation: React.FC<Props> = ({ specs, updateSpecs, onValid
                                     {node.ip || 'No IP'}
                                  </div>
                               </div>
-
-                              {/* Tooltip */}
-                              <div className="absolute bottom-full mb-3 left-1/2 -translate-x-1/2 bg-white border border-gray-200 px-3 py-2 rounded-lg shadow-xl whitespace-nowrap z-50 hidden group-hover:block animate-fade-in pointer-events-none">
-                                  <div className="text-center">
-                                      <div className="text-[10px] font-bold uppercase text-gray-400 tracking-wider mb-0.5">{node.role} Node</div>
-                                      <div className="font-mono text-sm font-bold text-blue-600">{node.ip || 'No IP Assigned'}</div>
-                                  </div>
-                                   <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-white"></div>
-                              </div>
                            </div>
                          ))}
+                         
+                         {/* Extra Nodes Indicator */}
+                         {specs.nodes.length > 4 && (
+                             <div className="flex flex-col items-center justify-center relative">
+                                 <div className="w-full h-full min-h-[80px] border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center text-gray-400 bg-gray-50/50">
+                                    <span className="font-bold text-lg">+{specs.nodes.length - 4}</span>
+                                    <span className="text-xs">More Nodes</span>
+                                 </div>
+                             </div>
+                         )}
                       </div>
 
                     </div>

@@ -1,22 +1,30 @@
 import React, { useState } from 'react';
 import { Server, Settings, Network, HardDrive, Disc, LayoutTemplate, Play, Database, Cloud, ArrowRight, ShieldCheck, Cpu, Shuffle, Lock, Globe, Clock, CheckCircle, Sliders, Laptop } from 'lucide-react';
+import { UISnapshot } from './ui/UISnapshot';
 
 interface Step {
   num: number;
   title: string;
   description: string;
+  imgSrc: string;
+  caption: string;
 }
 
 const StepGuide: React.FC<{ steps: Step[] }> = ({ steps }) => {
   return (
-    <div className="space-y-8">
+    <div className="space-y-12">
       {steps.map((step, idx) => (
         <div key={idx} className="relative pl-8 border-l-2 border-gray-200 pb-8 last:pb-0 last:border-0">
           <div className="absolute -left-[17px] top-0 w-8 h-8 rounded-full bg-suse-base text-white font-bold flex items-center justify-center shadow-sm">
             {step.num}
           </div>
-          <h4 className="text-lg font-bold text-gray-800 mb-2">{step.title}</h4>
-          <p className="text-gray-600 leading-relaxed text-sm">{step.description}</p>
+          <h4 className="text-xl font-bold text-gray-800 mb-2">{step.title}</h4>
+          <p className="text-gray-600 mb-4">{step.description}</p>
+          <UISnapshot 
+            type={step.title.includes('Install') || step.title.includes('Boot') ? 'console' : 'dashboard'}
+            imageSrc={step.imgSrc}
+            title={step.caption}
+          />
         </div>
       ))}
     </div>
@@ -96,6 +104,13 @@ export const InstallGuide: React.FC = () => {
                 <li><strong>Longhorn:</strong> Distributed block storage and tiering.</li>
               </ul>
             </div>
+            <div className="my-8">
+              <UISnapshot 
+                type="dashboard"
+                imageSrc="https://placehold.co/800x400/f1f5f9/334155?text=SUSE+Virtualization+Architecture+Diagram"
+                title="Figure: SUSE Virtualization Architecture (Page 4)"
+              />
+            </div>
           </div>
         );
 
@@ -148,22 +163,30 @@ export const InstallGuide: React.FC = () => {
                 {
                     num: 1,
                     title: "Boot & Installation Mode",
-                    description: "Mount the ISO and boot the server. Select 'Create a new SUSE Virtualization cluster' for the first node."
+                    description: "Mount the ISO and boot the server. Select 'Create a new SUSE Virtualization cluster' for the first node.",
+                    imgSrc: "https://placehold.co/600x400/000000/FFFFFF?text=GRUB+Menu:+Create+New+Cluster",
+                    caption: "Figure: Installation Mode Selection (Create/Join)"
                 },
                 {
                     num: 2,
                     title: "Disk Selection",
-                    description: "Select the Installation Disk (OS) and Data Disk (VM Storage). If using a single disk, set the persistent partition size (min 150GB)."
+                    description: "Select the Installation Disk (OS) and Data Disk (VM Storage). If using a single disk, set the persistent partition size (min 150GB).",
+                    imgSrc: "https://placehold.co/600x400/000000/FFFFFF?text=Select+Installation+Disk",
+                    caption: "Figure: Disk Selection"
                 },
                 {
                     num: 3,
                     title: "Hostname & Management Network",
-                    description: "Set the Hostname and configure the management network interface (Static IP, Gateway, DNS)."
+                    description: "Set the Hostname and configure the management network interface (Static IP, Gateway, DNS).",
+                    imgSrc: "https://placehold.co/600x400/000000/FFFFFF?text=Configure+Static+IP:+192.168.10.20",
+                    caption: "Figure: Management Interface Configuration"
                 },
                 {
                     num: 4,
                     title: "VIP & Cluster Token",
-                    description: "Configure the VIP (Virtual IP) for cluster access and define a secure Token for adding new nodes later."
+                    description: "Configure the VIP (Virtual IP) for cluster access and define a secure Token for adding new nodes later.",
+                    imgSrc: "https://placehold.co/600x400/000000/FFFFFF?text=VIP:+192.168.10.10%0AToken:+*******",
+                    caption: "Figure: High Availability Configuration (VIP)"
                 }
             ]} />
           </div>
@@ -181,19 +204,29 @@ export const InstallGuide: React.FC = () => {
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-6">
-                <div className="bg-white p-4 rounded-lg border border-gray-200">
+                <div>
                     <h3 className="font-bold text-lg mb-2">First Access</h3>
-                    <p className="text-gray-600 mb-4 text-sm">
+                    <p className="text-gray-600 mb-4">
                         1. Access the URL in a browser.<br/>
                         2. Accept the self-signed certificate.<br/>
                         3. Set the password for the <strong>admin</strong> user.
                     </p>
+                    <UISnapshot 
+                        type="dashboard"
+                        imageSrc="https://placehold.co/500x300/e2e8f0/475569?text=Set+Admin+Password"
+                        title="First Login Screen"
+                    />
                 </div>
-                <div className="bg-white p-4 rounded-lg border border-gray-200">
+                <div>
                     <h3 className="font-bold text-lg mb-2">Dashboard</h3>
-                    <p className="text-gray-600 mb-4 text-sm">
+                    <p className="text-gray-600 mb-4">
                         The Dashboard provides an overview of CPU, Memory, and Storage of the cluster.
                     </p>
+                    <UISnapshot 
+                        type="dashboard"
+                        imageSrc="https://placehold.co/500x300/e2e8f0/475569?text=Dashboard+Overview"
+                        title="Dashboard"
+                    />
                 </div>
             </div>
           </div>
@@ -216,6 +249,14 @@ export const InstallGuide: React.FC = () => {
                         <p className="text-sm text-gray-600">Connects VMs to the external physical network. Uses Multus + Bridge CNI. Allows VMs to receive IPs from your corporate network (L2).</p>
                     </div>
                 </div>
+            </div>
+
+            <div className="my-6">
+                 <UISnapshot 
+                    type="dashboard"
+                    imageSrc="https://placehold.co/800x300/f8fafc/64748b?text=Network+Topology+Diagram+(Page+30)"
+                    title="Figure: Network Flow Diagram"
+                 />
             </div>
 
             <h3 className="text-xl font-bold mt-8 mb-4">Creating a VLAN Network</h3>
@@ -245,6 +286,11 @@ export const InstallGuide: React.FC = () => {
                 <div className="border border-gray-200 rounded-lg p-4 bg-white">
                     <h3 className="font-bold text-lg mb-2">Volumes</h3>
                     <p className="text-sm text-gray-600 mb-4">Volumes are virtual disks that can be attached to VMs. They can be created empty or from Images.</p>
+                    <UISnapshot 
+                        type="dashboard"
+                        imageSrc="https://placehold.co/700x200/e2e8f0/475569?text=Create+Volume+UI"
+                        title="Create Volume Screen"
+                    />
                 </div>
             </div>
           </div>
@@ -286,13 +332,23 @@ export const InstallGuide: React.FC = () => {
             <h1 className="text-3xl font-bold text-suse-dark">VM Management</h1>
             
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="bg-white p-4 rounded-lg border border-gray-200">
+                <div className="space-y-4">
                     <h3 className="font-bold text-lg">Create VM</h3>
                     <p className="text-sm text-gray-600">Configure CPU, Memory, SSH Keys, and Networks. Use Cloud-Init in the Advanced tab for automation.</p>
+                    <UISnapshot 
+                        type="dashboard"
+                        imageSrc="https://placehold.co/500x300/e2e8f0/475569?text=Create+VM+Wizard"
+                        title="Create VM Form"
+                    />
                 </div>
-                <div className="bg-white p-4 rounded-lg border border-gray-200">
+                <div className="space-y-4">
                     <h3 className="font-bold text-lg">Console Access</h3>
                     <p className="text-sm text-gray-600">Access via VNC (Graphic) or Serial (Text) directly from the browser.</p>
+                    <UISnapshot 
+                        type="dashboard"
+                        imageSrc="https://placehold.co/500x300/000000/FFFFFF?text=Web+VNC+Console"
+                        title="Web Console"
+                    />
                 </div>
             </div>
 
@@ -351,17 +407,23 @@ export const InstallGuide: React.FC = () => {
                 {
                     num: 1,
                     title: "Virtualization Management",
-                    description: "In Rancher Manager, access the menu and select 'Virtualization Management'."
+                    description: "In Rancher Manager, access the menu and select 'Virtualization Management'.",
+                    imgSrc: "https://placehold.co/600x200/e2e8f0/475569?text=Rancher+Menu",
+                    caption: "Figure: Rancher Menu v2.6+"
                 },
                 {
                     num: 2,
                     title: "Import Cluster",
-                    description: "Click 'Import Existing' and provide a name for the cluster."
+                    description: "Click 'Import Existing' and provide a name for the cluster.",
+                    imgSrc: "https://placehold.co/600x200/e2e8f0/475569?text=Import+Cluster",
+                    caption: "Figure: Import Screen"
                 },
                 {
                     num: 3,
                     title: "Run Registration Command",
-                    description: "Copy the provided kubectl command and run it in the terminal of the SUSE Virtualization management node."
+                    description: "Copy the provided kubectl command and run it in the terminal of the SUSE Virtualization management node.",
+                    imgSrc: "https://placehold.co/600x150/000000/FFFFFF?text=kubectl+apply+-f+https://rancher...",
+                    caption: "Figure: Registration Command"
                 }
             ]} />
             

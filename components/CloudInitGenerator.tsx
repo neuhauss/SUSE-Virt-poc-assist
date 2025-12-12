@@ -152,7 +152,6 @@ export const CloudInitGenerator: React.FC<Props> = ({ config, updateConfig, onCo
 
   // Network State
   const [newNet, setNewNet] = useState<NetworkInterface>({ name: '', dhcp: true, ip: '', gateway: '', nameservers: '' });
-  const [netError, setNetError] = useState<string | null>(null);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -170,17 +169,6 @@ export const CloudInitGenerator: React.FC<Props> = ({ config, updateConfig, onCo
     updateConfig({ ...config, [field]: newArray });
   };
 
-  const handleAddNetwork = () => {
-    if (!newNet.name) return;
-    if (config.networkInterfaces.some(n => n.name === newNet.name)) {
-        setNetError(`Interface '${newNet.name}' already exists.`);
-        return;
-    }
-    setNetError(null);
-    handleAddItem('networkInterfaces', newNet);
-    setNewNet({ name: '', dhcp: true, ip: '', gateway: '', nameservers: '' });
-  };
-
   const handleSshFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -192,6 +180,7 @@ export const CloudInitGenerator: React.FC<Props> = ({ config, updateConfig, onCo
       }
     };
     reader.readAsText(file);
+    // Reset the input so the same file can be selected again if needed
     e.target.value = '';
   };
 
@@ -224,10 +213,7 @@ network:
             yaml += `    ${net.name}:\n`;
             yaml += `      dhcp4: ${net.dhcp}\n`;
             if (!net.dhcp && net.ip) {
-                // Support multiple IPs if comma-separated
-                const ipList = net.ip.split(',').map(i => i.trim()).join(', ');
-                yaml += `      addresses: [${ipList}]\n`;
-                
+                yaml += `      addresses: [${net.ip}]\n`;
                 if (net.gateway) yaml += `      gateway4: ${net.gateway}\n`;
                 if (net.nameservers) {
                     yaml += `      nameservers:\n        addresses: [${net.nameservers.split(',').map(n => n.trim()).join(', ')}]\n`;
@@ -257,6 +243,8 @@ fs_setup:
 mounts:
 `;
         config.mounts.forEach(m => {
+             // Basic assumption: partition 1 is created by layout: true
+             // If device is a partition (e.g. /dev/vdb1), just use it directly, but disk_setup handles raw disks
              const part = m.device.match(/[0-9]$/) ? m.device : `${m.device}1`;
              yaml += `  - [ ${part}, ${m.mountPath} ]\n`;
         });
@@ -386,6 +374,7 @@ ${config.runCmds.map(c => `  - ${c}`).join('\n')}
                               rows={2}
                             />
                             
+                            {/* Hidden File Input */}
                             <input 
                               type="file" 
                               ref={fileInputRef} 
@@ -600,7 +589,6 @@ ${config.runCmds.map(c => `  - ${c}`).join('\n')}
                                             onChange={(e) => setNewNet({...newNet, ip: e.target.value})}
                                             className="w-full px-2 py-1.5 border rounded text-sm"
                                           />
-                                          <div className="text-[9px] text-gray-500 mt-0.5">Separate multiple IPs with commas</div>
                                       </div>
                                       <div className="grid grid-cols-2 gap-3">
                                         <div>
@@ -626,12 +614,10 @@ ${config.runCmds.map(c => `  - ${c}`).join('\n')}
                               )}
                            </div>
                            
-                           <div className="mt-3 flex justify-between items-center">
-                               {netError && <div className="text-xs text-red-500 font-bold">{netError}</div>}
-                               <div className="flex-1"></div>
+                           <div className="mt-3 flex justify-end">
                                <button 
                                  disabled={!newNet.name || (!newNet.dhcp && !newNet.ip)}
-                                 onClick={handleAddNetwork}
+                                 onClick={() => { handleAddItem('networkInterfaces', newNet); setNewNet({ name: '', dhcp: true, ip: '', gateway: '', nameservers: '' }); }}
                                  className="text-xs bg-blue-500 text-white px-3 py-1.5 rounded font-bold disabled:bg-gray-300"
                                >
                                  Add Interface

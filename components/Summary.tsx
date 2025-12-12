@@ -46,13 +46,9 @@ export const Summary: React.FC<Props> = ({ pocData, specs, netSpecs, cloudInitCo
 
   const currentDate = new Date().toLocaleDateString();
 
-  // Helper to render empty states.
-  // strictCheck=true means 0 is considered a value. strictCheck=false means 0 is considered empty (useful for specs).
-  const renderValue = (value: string | number | undefined, placeholder: string = "Not Specified", strictCheck: boolean = true) => {
+  // Helper to render empty states
+  const renderValue = (value: string | number | undefined, placeholder: string = "Not Specified") => {
       if (value === undefined || value === null || value === '' || (typeof value === 'number' && isNaN(value))) {
-          return <span className="text-gray-400 italic text-sm font-normal print:text-gray-500">({placeholder})</span>;
-      }
-      if (!strictCheck && value === 0) {
           return <span className="text-gray-400 italic text-sm font-normal print:text-gray-500">({placeholder})</span>;
       }
       return value;
@@ -141,13 +137,9 @@ export const Summary: React.FC<Props> = ({ pocData, specs, netSpecs, cloudInitCo
                   <div className="font-semibold text-gray-900">{renderValue(pocData.clientContactName)}</div>
                   <div className="text-sm text-gray-600">{renderValue(pocData.clientContactRole, "Role Not Specified")}</div>
                   <div className="text-sm text-gray-600 font-bold">{renderValue(pocData.clientOrganization)}</div>
-                  <div className="flex flex-col text-xs text-gray-500 mt-1 gap-1">
-                      <div className="flex items-center gap-1">
-                        <Mail className="w-3 h-3"/> {renderValue(pocData.clientContactEmail)}
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Phone className="w-3 h-3"/> {renderValue(pocData.clientContactPhone)}
-                      </div>
+                  <div className="flex flex-col text-xs text-gray-500 mt-1">
+                      {pocData.clientContactEmail && <span className="flex items-center gap-1"><Mail className="w-3 h-3"/> {pocData.clientContactEmail}</span>}
+                      {pocData.clientContactPhone && <span className="flex items-center gap-1"><Phone className="w-3 h-3"/> {pocData.clientContactPhone}</span>}
                   </div>
                </div>
 
@@ -176,16 +168,16 @@ export const Summary: React.FC<Props> = ({ pocData, specs, netSpecs, cloudInitCo
               </h3>
               <dl className="grid grid-cols-3 gap-x-2 gap-y-3 text-sm">
                   <dt className="text-gray-500 col-span-1">Total Nodes</dt>
-                  <dd className="font-medium col-span-2 text-gray-900">{renderValue(specs.nodeCount, "Not Specified", false)} Physical Servers</dd>
+                  <dd className="font-medium col-span-2 text-gray-900">{renderValue(specs.nodeCount)} Physical Servers</dd>
                   
                   <dt className="text-gray-500 col-span-1">Compute / Node</dt>
-                  <dd className="font-medium col-span-2 text-gray-900">{renderValue(specs.cpuCores, "0", false)} Cores, {renderValue(specs.ramGb, "0", false)} GB RAM</dd>
+                  <dd className="font-medium col-span-2 text-gray-900">{specs.cpuCores} Cores, {specs.ramGb} GB RAM</dd>
                   
                   <dt className="text-gray-500 col-span-1">Storage / Node</dt>
-                  <dd className="font-medium col-span-2 text-gray-900">{renderValue(specs.diskGb, "0", false)} GB ({specs.diskType})</dd>
+                  <dd className="font-medium col-span-2 text-gray-900">{specs.diskGb} GB ({specs.diskType})</dd>
                   
                   <dt className="text-gray-500 col-span-1">Network / Node</dt>
-                  <dd className="font-medium col-span-2 text-gray-900">{renderValue(specs.networkSpeedGb, "0", false)} Gbps Uplink</dd>
+                  <dd className="font-medium col-span-2 text-gray-900">{specs.networkSpeedGb} Gbps Uplink</dd>
               </dl>
            </div>
            
@@ -240,7 +232,7 @@ export const Summary: React.FC<Props> = ({ pocData, specs, netSpecs, cloudInitCo
                                   </span>
                               </td>
                               <td className="px-4 py-3 text-gray-500 text-xs">
-                                  {renderValue(specs.cpuCores, "0", false)} vCPU / {renderValue(specs.ramGb, "0", false)} GB RAM
+                                  {specs.cpuCores} vCPU / {specs.ramGb} GB RAM
                               </td>
                           </tr>
                       )) : (
